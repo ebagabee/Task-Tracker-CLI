@@ -1,0 +1,23 @@
+{
+  "name": "task-tracker-cli",
+  "version": "1.0.0",
+  "description": "task tracker is a project use to track and manage your tasks",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node src/index.ts"
+  },
+  "keywords": [
+    "typescript",
+    "javascript",
+    "cli",
+    "json"
+  ],
+  "author": "Gabriel Alves",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.7.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  }
+}
