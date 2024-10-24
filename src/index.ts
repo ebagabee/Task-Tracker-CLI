@@ -1,6 +1,8 @@
-import readline from "node:readline";
+import readline from "readline";
 import fs from "fs/promises";
-import path from "node:path";
+import path from "path";
+
+const fileDatabase = path.join(__dirname, "database/database.json");
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -19,15 +21,38 @@ enum questionEnumInput {
   IN_PROGRESS = "in-progress",
 }
 
-const fileDatabase = path.join(__dirname, "database.json");
-let choice;
+let choice: string;
+
+async function add(currentChoice: string) {
+  try {
+    const data = await fs.readFile(fileDatabase, "utf-8");
+
+    const tasks = JSON.parse(data);
+
+    const newTask = {
+      id: tasks.length + 1,
+      description: currentChoice,
+      status: "todo",
+      createdAt: new Date(),
+      updateAt: new Date(),
+    };
+
+    tasks.push(newTask);
+
+    await fs.writeFile(fileDatabase, JSON.stringify(tasks, null, 2));
+
+    console.log("New task added successfully!");
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
 
 rl.question("What do you want to do?: ", (current) => {
   choice = current;
 
   switch (choice) {
     case questionEnumInput.ADD:
-      console.log("Adding new task");
+      add(choice);
       break;
     case questionEnumInput.UPDATE:
       console.log("Updating...");
@@ -42,7 +67,7 @@ rl.question("What do you want to do?: ", (current) => {
       console.log("Making done...");
       break;
     case questionEnumInput.LIST:
-      console.log("listing...");
+      console.log("Listing...");
       break;
     case questionEnumInput.DONE:
       console.log("Doning");
@@ -58,5 +83,3 @@ rl.question("What do you want to do?: ", (current) => {
       break;
   }
 });
-
-
