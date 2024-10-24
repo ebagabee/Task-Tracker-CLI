@@ -1,6 +1,7 @@
 import readline from "readline";
 import fs from "fs/promises";
 import path from "path";
+import { randomUUID, UUID } from "crypto";
 
 const fileDatabase = path.join(__dirname, "database/database.json");
 
@@ -8,6 +9,18 @@ const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
+
+function askQuestion(query: string): Promise<string> {
+  return new Promise((resolve) => rl.question(query, resolve));
+}
+
+interface Task {
+  id: string;
+  description: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 enum questionEnumInput {
   ADD = "add",
@@ -23,18 +36,28 @@ enum questionEnumInput {
 
 let choice: string;
 
-async function add(currentChoice: string) {
+async function add() {
   try {
+    const description = await askQuestion("Description: ");
+    const status = await askQuestion("Status (todo, in-progress, done): ");
+
+    if (!["todo", "in-progress", "done"].includes(status)) {
+      console.log(
+        "Invalid status! Please use 'todo', 'in-progress', or 'done'."
+      );
+      rl.close();
+      return;
+    }
+
     const data = await fs.readFile(fileDatabase, "utf-8");
+    const tasks: Task[] = JSON.parse(data);
 
-    const tasks = JSON.parse(data);
-
-    const newTask = {
-      id: tasks.length + 1,
-      description: currentChoice,
-      status: "todo",
+    const newTask: Task = {
+      id: randomUUID(),
+      description,
+      status,
       createdAt: new Date(),
-      updateAt: new Date(),
+      updatedAt: new Date(),
     };
 
     tasks.push(newTask);
@@ -44,6 +67,8 @@ async function add(currentChoice: string) {
     console.log("New task added successfully!");
   } catch (error) {
     console.error("Error:", error);
+  } finally {
+    rl.close();
   }
 }
 
@@ -52,7 +77,7 @@ rl.question("What do you want to do?: ", (current) => {
 
   switch (choice) {
     case questionEnumInput.ADD:
-      add(choice);
+      add();
       break;
     case questionEnumInput.UPDATE:
       console.log("Updating...");
