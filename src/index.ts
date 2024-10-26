@@ -131,12 +131,19 @@ async function taskMarkDone(args: string[]) {
   await saveDatabase(tasks);
 }
 
+async function listTasks() {
+  const tasks = await getDatabase();
+
+  console.log(tasks);
+}
+
 const commandDispatcher: Record<string, (args: string[]) => Promise<void>> = {
   add: addTask,
   update: updateTask,
   delete: deleteTask,
   "mark-in-progress": taskInProgress,
   "mark-done": taskMarkDone,
+  list: listTasks,
 };
 
 async function processComand(input: string) {
