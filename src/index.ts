@@ -37,12 +37,18 @@ enum statusQuestionEnum {
   DONE = "done",
 }
 
+async function getDatabase() {
+  const data = await fs.readFile(fileDatabase, "utf8");
+  const tasks: Task[] = JSON.parse(data);
+
+  return tasks;
+}
+
 async function add(): Promise<void> {
   try {
     const description = await askQuestion("Description: ");
 
-    const data = await fs.readFile(fileDatabase, "utf-8");
-    const tasks: Task[] = JSON.parse(data);
+    const tasks = await getDatabase();
 
     const newTask: Task = {
       id: randomUUID(),
@@ -64,6 +70,38 @@ async function add(): Promise<void> {
   }
 }
 
+async function update(): Promise<void> {
+  try {
+    const tasks = await getDatabase();
+
+    const identifier = await askQuestion("ID: ");
+
+    const findTask = tasks.find((task) => task.id === identifier);
+
+    if (!findTask) {
+      console.log("Not Found task")
+      return;
+    }
+
+    const newDescription = await askQuestion("Description: ");
+
+    if (!newDescription) {
+      console.log("Not Found description")
+      return;
+    }
+
+    findTask.description = newDescription;
+
+    await fs.writeFile(fileDatabase, JSON.stringify(tasks, null, 2));
+
+    console.log("Task updated successfully!");
+  } catch (error) {
+    console.error("Error:", error);
+  } finally {
+    rl.close();
+  }
+}
+
 async function main(){
 
   try {
@@ -74,7 +112,7 @@ async function main(){
         await add();
         break;
       case questionEnumInput.UPDATE:
-        console.log("Updating...");
+        await update();
         break;
       case questionEnumInput.DELETE:
         console.log("Deleting...");
