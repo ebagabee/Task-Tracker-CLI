@@ -66,9 +66,27 @@ async function addTask(args: string[]) {
   }
 }
 
+async function updateTask(args: string[]) {
+  const tasks = await getDatabase();
+  const id = args[0];
+  const newDescription = args[1].replace(/^"|"$/g, "");;
+
+  const findTask = tasks.find((task) => task.id === +id);
+
+  if (!findTask) {
+    console.log("Task not found");
+    return;
+  }
+
+  findTask.description = newDescription;
+
+  await saveDatabase(tasks);
+}
+
 const commandDispatcher: Record<string, (args: string[]) => Promise<void>> = {
   add: addTask,
-}
+  update: updateTask,
+};
 
 async function processComand(input: string) {
   const [command, ...args] = input.split(/\s+/);
@@ -78,7 +96,9 @@ async function processComand(input: string) {
   if (commandFunction) {
     await commandFunction(args);
   } else {
-    console.log("Unknown command. Available commands are: add, update, delete...");
+    console.log(
+      "Unknown command. Available commands are: add, update, delete..."
+    );
   }
 }
 
