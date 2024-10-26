@@ -69,7 +69,7 @@ async function addTask(args: string[]) {
 async function updateTask(args: string[]) {
   const tasks = await getDatabase();
   const id = args[0];
-  const newDescription = args[1].replace(/^"|"$/g, "");;
+  const newDescription = args[1].replace(/^"|"$/g, "");
 
   const findTask = tasks.find((task) => task.id === +id);
 
@@ -131,10 +131,34 @@ async function taskMarkDone(args: string[]) {
   await saveDatabase(tasks);
 }
 
-async function listTasks() {
+async function listTasks(args: string[]) {
   const tasks = await getDatabase();
+  const status = args[0]
 
-  console.log(tasks);
+  if (status === statusQuestionEnum.DONE) {
+    const findTasks = tasks.find((task) => task.status === args[0]);
+    console.log(findTasks);
+    return;
+  }
+
+  if (status === statusQuestionEnum.TODO) {
+    const findTasks = tasks.find((task) => task.status === args[0]);
+    console.log(findTasks);
+    return;
+  }
+
+  if (status === statusQuestionEnum.IN_PROGRESS) {
+    const findTasks = tasks.find((task) => task.status === args[0]);
+    console.log(findTasks);
+    return;
+  }
+
+  if (!status) {
+    console.log(tasks);
+    return;
+  }
+
+  console.log("No't find any tasks");
 }
 
 const commandDispatcher: Record<string, (args: string[]) => Promise<void>> = {
