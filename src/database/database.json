@@ -1,12 +1,5 @@
 [
   {
-    "id": 1,
-    "description": "teste",
-    "status": "todo",
-    "createdAt": "2024-10-26T14:33:11.249Z",
-    "updatedAt": "2024-10-26T14:33:11.249Z"
-  },
-  {
     "id": 2,
     "description": "Comer",
     "status": "todo",

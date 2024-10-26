@@ -83,9 +83,26 @@ async function updateTask(args: string[]) {
   await saveDatabase(tasks);
 }
 
+async function deleteTask(args: string[]) {
+  const tasks = await getDatabase();
+  const id = args[0];
+
+  const findTaskIndex = tasks.findIndex((task) => task.id === +id);
+
+  if (findTaskIndex === -1) {
+    console.log("Task not found");
+    return;
+  }
+
+  tasks.splice(findTaskIndex, 1);
+
+  await saveDatabase(tasks);
+}
+
 const commandDispatcher: Record<string, (args: string[]) => Promise<void>> = {
   add: addTask,
   update: updateTask,
+  delete: deleteTask,
 };
 
 async function processComand(input: string) {
