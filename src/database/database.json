@@ -1,23 +1,9 @@
 [
   {
-    "id": "45907d62-d63c-4eea-89a0-253bb11756d1",
-    "description": "Assistir algo legal",
+    "id": 1,
+    "description": "Assistir jogo",
     "status": "todo",
-    "createdAt": "2024-10-24T03:22:18.162Z",
-    "updatedAt": "2024-10-24T03:22:18.162Z"
-  },
-  {
-    "id": "92ffd9cc-666d-4264-b40b-ab6c09b65bb5",
-    "description": "Assistir o jogo do corinthians",
-    "status": "todo",
-    "createdAt": "2024-10-26T13:07:31.041Z",
-    "updatedAt": "2024-10-26T13:07:31.041Z"
-  },
-  {
-    "id": "2bf28cd9-809a-4ee3-9100-1cab9f39b31b",
-    "description": "Jogar video game",
-    "status": "todo",
-    "createdAt": "2024-10-26T13:14:40.698Z",
-    "updatedAt": "2024-10-26T13:14:40.698Z"
+    "createdAt": "2024-10-26T14:33:11.249Z",
+    "updatedAt": "2024-10-26T14:33:11.249Z"
   }
 ]

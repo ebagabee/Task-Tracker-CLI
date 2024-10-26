@@ -1,7 +1,6 @@
-import readline from "readline";
+import * as readline from "node:readline";
 import fs from "fs/promises";
 import path from "path";
-import { randomUUID } from "crypto";
 
 const fileDatabase = path.join(__dirname, "database/database.json");
 
@@ -14,44 +13,44 @@ function askQuestion(query: string): Promise<string> {
   return new Promise((resolve) => rl.question(query, resolve));
 }
 
-interface Task {
-  id: string;
-  description: string;
-  status: statusQuestionEnum;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-enum questionEnumInput {
-  ADD = "add",
-  UPDATE = "update",
-  DELETE = "delete",
-  MARK_PROGRESS = "mark-in-progress",
-  MARK_DONE = "mark-done",
-  LIST = "list",
-}
-
 enum statusQuestionEnum {
   TODO = "todo",
   IN_PROGRESS = "in-progress",
   DONE = "done",
 }
 
+interface Task {
+  id: number;
+  description: string;
+  status: statusQuestionEnum;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 async function getDatabase() {
   const data = await fs.readFile(fileDatabase, "utf8");
   const tasks: Task[] = JSON.parse(data);
-
   return tasks;
 }
 
-async function add(): Promise<void> {
-  try {
-    const description = await askQuestion("Description: ");
+async function saveDatabase(tasks: Task[]) {
+  await fs.writeFile(fileDatabase, JSON.stringify(tasks, null, 2), "utf8");
+}
 
+async function addTask(args: string[]) {
+  const description = args.join(" ").replace(/^"|"$/g, "");
+
+  if (!description) {
+    console.log("Task description is required.");
+    return;
+  }
+
+  try {
     const tasks = await getDatabase();
+    const newId = tasks.length > 0 ? tasks[tasks.length - 1].id + 1 : 1;
 
     const newTask: Task = {
-      id: randomUUID(),
+      id: newId,
       description,
       status: statusQuestionEnum.TODO,
       createdAt: new Date(),
@@ -59,89 +58,34 @@ async function add(): Promise<void> {
     };
 
     tasks.push(newTask);
+    await saveDatabase(tasks);
 
-    await fs.writeFile(fileDatabase, JSON.stringify(tasks, null, 2));
-
-    console.log("New task added successfully!");
+    console.log(`Task added successfully (ID: ${newTask.id})`);
   } catch (error) {
-    console.error("Error:", error);
-  } finally {
-    rl.close();
+    console.error("Error adding task:", error);
   }
 }
 
-async function update(): Promise<void> {
-  try {
-    const tasks = await getDatabase();
+const commandDispatcher: Record<string, (args: string[]) => Promise<void>> = {
+  add: addTask,
+}
 
-    const identifier = await askQuestion("ID: ");
+async function processComand(input: string) {
+  const [command, ...args] = input.split(/\s+/);
 
-    const findTask = tasks.find((task) => task.id === identifier);
+  const commandFunction = commandDispatcher[command];
 
-    if (!findTask) {
-      console.log("Not Found task")
-      return;
-    }
-
-    const newDescription = await askQuestion("Description: ");
-
-    if (!newDescription) {
-      console.log("Not Found description")
-      return;
-    }
-
-    findTask.description = newDescription;
-
-    await fs.writeFile(fileDatabase, JSON.stringify(tasks, null, 2));
-
-    console.log("Task updated successfully!");
-  } catch (error) {
-    console.error("Error:", error);
-  } finally {
-    rl.close();
+  if (commandFunction) {
+    await commandFunction(args);
+  } else {
+    console.log("Unknown command. Available commands are: add, update, delete...");
   }
 }
 
-async function main(){
-
-  try {
-    const choice = await askQuestion("What is the current task?");
-
-    switch (choice) {
-      case questionEnumInput.ADD:
-        await add();
-        break;
-      case questionEnumInput.UPDATE:
-        await update();
-        break;
-      case questionEnumInput.DELETE:
-        console.log("Deleting...");
-        break;
-      case questionEnumInput.MARK_PROGRESS:
-        console.log("Mark progress");
-        break;
-      case questionEnumInput.MARK_DONE:
-        console.log("Making done...");
-        break;
-      case questionEnumInput.LIST:
-        console.log("Listing...");
-        break;
-      case statusQuestionEnum.DONE:
-        console.log("Done");
-        break;
-      case statusQuestionEnum.TODO:
-        console.log("Todo task");
-        break;
-      case statusQuestionEnum.IN_PROGRESS:
-        console.log("In progress task");
-        break;
-      default:
-        console.log("That's impossible");
-        break;
-    }
-  } catch (error) {
-    console.error("Error:", error);
-  }
+async function run() {
+  const userInput = await askQuestion("Enter your command: ");
+  await processComand(userInput);
+  rl.close();
 }
 
-main();
+run();
