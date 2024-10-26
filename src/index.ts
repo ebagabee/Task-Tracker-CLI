@@ -99,10 +99,44 @@ async function deleteTask(args: string[]) {
   await saveDatabase(tasks);
 }
 
+async function taskInProgress(args: string[]) {
+  const tasks = await getDatabase();
+  const id = args[0];
+
+  const findTask = tasks.find((task) => task.id === +id);
+
+  if (!findTask) {
+    console.log("Task not found");
+    return;
+  }
+
+  findTask.status = statusQuestionEnum.IN_PROGRESS;
+
+  await saveDatabase(tasks);
+}
+
+async function taskMarkDone(args: string[]) {
+  const tasks = await getDatabase();
+  const id = args[0];
+
+  const findTask = tasks.find((task) => task.id === +id);
+
+  if (!findTask) {
+    console.log("Task not found");
+    return;
+  }
+
+  findTask.status = statusQuestionEnum.DONE;
+
+  await saveDatabase(tasks);
+}
+
 const commandDispatcher: Record<string, (args: string[]) => Promise<void>> = {
   add: addTask,
   update: updateTask,
   delete: deleteTask,
+  "mark-in-progress": taskInProgress,
+  "mark-done": taskMarkDone,
 };
 
 async function processComand(input: string) {
